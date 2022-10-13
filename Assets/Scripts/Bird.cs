@@ -7,6 +7,7 @@ public class Bird : MonoBehaviour
 {
     [SerializeField] float _launchForce = 500f;
     [SerializeField] float _maxDragDistance = 5f;
+    [SerializeField] ParticleSystem _groundHit;
 
     Vector2 _startPosition;
     Rigidbody2D _rigidbody;
@@ -87,6 +88,9 @@ public class Bird : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        //play groundhit on collision place
+        _groundHit.transform.position = collision.contacts[0].point;
+        _groundHit.Play();
         StartCoroutine(ResetAfterDelay(2f));
     }
 

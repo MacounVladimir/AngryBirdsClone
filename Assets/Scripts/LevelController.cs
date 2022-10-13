@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class LevelController : MonoBehaviour
 {
     [SerializeField] string _nextLevelName;
+    [SerializeField] ParticleSystem levelDoneFirework;
     Monster[] _monsters;
 
     private void OnEnable()

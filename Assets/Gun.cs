@@ -6,15 +6,16 @@ using UnityEngine;
 public class Gun : MonoBehaviour
 {
     [SerializeField] float damage = 10f;
-    [SerializeField] float fireRate;
-    //[SerializeField] ParticleSystem muzzleFlash;
-    [SerializeField] GameObject impactEffect;
+    [SerializeField] float timeBetweenShots = 1f;
+    bool canShoot = true;
+    [SerializeField] ParticleSystem muzzleFlash;
+    [SerializeField] ParticleSystem impactEffect;
     [SerializeField] float impactForce = 30f;
     GameObject Target;
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKey(KeyCode.Q))
         {
             Shoot();
         }
@@ -22,34 +23,47 @@ public class Gun : MonoBehaviour
 
     private void Shoot()
     {
-        //2D
-        RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, transform.right);
-        if (hitInfo != null)
+        if (canShoot)
         {
-            Debug.Log(hitInfo.transform.name);
-        }
-        //if hitted object has tag monster
-        if (hitInfo.collider.CompareTag("Monster"))
-        {
-            //get monster script
-            Target = hitInfo.collider.gameObject;
-            Monster monster = Target.GetComponent<Monster>();
-            //call TakeDamage function
-            monster.TakeDamage(damage);
-            //move with impact force
-            Rigidbody2D rb = Target.GetComponent<Rigidbody2D>();
-            if (rb != null)
+            canShoot = false;
+            StartCoroutine(ShootCooldown());
+            muzzleFlash.Play();
+            RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, transform.right);
+            if (hitInfo)
             {
-                rb.AddForce(transform.right * impactForce, ForceMode2D.Impulse);
+                //play impact effect at hit point
+                impactEffect.transform.position = hitInfo.point;
+                impactEffect.Play();
+                //if hitted object has tag monster
+                if (hitInfo.collider.CompareTag("Monster"))
+                {
+                    //get monster script
+                    Target = hitInfo.collider.gameObject;
+                    Monster monster = Target.GetComponent<Monster>();
+                    //call TakeDamage function
+                    monster.TakeDamage(damage);
+                    //move with impact force
+                    Rigidbody2D rb = Target.GetComponent<Rigidbody2D>();
+                    if (rb != null)
+                    {
+                        rb.AddForce(transform.right * impactForce, ForceMode2D.Impulse);
+                    }
+                }
+                else
+                {
+                    Rigidbody2D rb = hitInfo.collider.GetComponent<Rigidbody2D>();
+                    if (rb != null)
+                    {
+                        rb.AddForce(transform.right * impactForce, ForceMode2D.Impulse);
+                    }
+                }
             }
         }
-        else
-        {
-            Rigidbody2D rb = hitInfo.collider.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                rb.AddForce(transform.right * impactForce, ForceMode2D.Impulse);
-            }
-        }
+    }
+
+    IEnumerator ShootCooldown()
+    {
+        yield return new WaitForSeconds(timeBetweenShots);
+        canShoot = true;
     }
 }

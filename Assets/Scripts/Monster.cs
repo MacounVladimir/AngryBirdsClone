@@ -9,7 +9,10 @@ public class Monster : MonoBehaviour
     [SerializeField] Sprite _deadSprite;
     [SerializeField] ParticleSystem _particleSystem;
     public int hp = 1;
-    
+    public bool isjumping;
+    [SerializeField] float jumpForce = 10f;
+    [SerializeField] float jumpTime = 0.5f;
+
     bool _hasDied;
 
     Animator animator;
@@ -60,6 +63,25 @@ public class Monster : MonoBehaviour
         if (hp <= 0)
         {
             StartCoroutine(Die());
+        }
+    }
+
+    void Update()
+    {
+        if (!_hasDied)
+        {
+            StartCoroutine(Jump());
+        }
+    }
+
+    IEnumerator Jump()
+    {
+        if (!isjumping)
+        {
+            isjumping = true;
+            GetComponent<Rigidbody2D>().AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            yield return new WaitForSeconds(jumpTime);
+            isjumping = false;
         }
     }
 }
