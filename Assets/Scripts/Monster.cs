@@ -49,6 +49,7 @@ public class Monster : MonoBehaviour
 
     IEnumerator Die()
     {
+        FindObjectOfType<AudioManager>().Play("MonsterDeath");
         _hasDied = true;
         GetComponent<SpriteRenderer>().sprite = _deadSprite;
         GetComponent<Animator>().enabled = false;
